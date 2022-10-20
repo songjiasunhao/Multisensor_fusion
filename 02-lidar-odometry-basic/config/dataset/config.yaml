@@ -4,9 +4,9 @@
 measurements:
     lidar:
         topic_name: /lslidar_point_cloud
-#topic_name: /kitti/velo/pointcloud
+        #topic_name: /kitti/velo/pointcloud
         frame_id: laser_link
-#frame_id:velo_link
+        #frame_id:velo_link
         queue_size: 100000
     imu:
         topic_name: /imu/data 

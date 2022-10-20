@@ -48,7 +48,7 @@ int main(int argc, char *argv[]) {
     while (ros::ok()) {
         ros::spinOnce();
 
-        front_end_flow_ptr->Run();
+     front_end_flow_ptr->Run();
 
         if (save_map) {
             front_end_flow_ptr->SaveMap();

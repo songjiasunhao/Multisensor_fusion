@@ -118,6 +118,7 @@ bool FrontEnd::InitFilter(std::string filter_user, std::shared_ptr<CloudFilterIn
 
 bool FrontEnd::Update(const CloudData& cloud_data, Eigen::Matrix4f& cloud_pose) {
     current_frame_.cloud_data.time = cloud_data.time;
+    
     std::vector<int> indices;
     pcl::removeNaNFromPointCloud(*cloud_data.cloud_ptr, *current_frame_.cloud_data.cloud_ptr, indices);
 

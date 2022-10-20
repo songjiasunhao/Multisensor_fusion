@@ -21,8 +21,8 @@ FrontEndFlow::FrontEndFlow(ros::NodeHandle& nh) {
     cloud_pub_ptr_ = std::make_shared<CloudPublisher>(nh, "current_scan", 100, "/map");
     local_map_pub_ptr_ = std::make_shared<CloudPublisher>(nh, "local_map", 100, "/map");
     global_map_pub_ptr_ = std::make_shared<CloudPublisher>(nh, "global_map", 100, "/map");
-    laser_odom_pub_ptr_ = std::make_shared<OdometryPublisher>(nh, "laser_odom", "map", "lidar", 100);
-    gnss_pub_ptr_ = std::make_shared<OdometryPublisher>(nh, "gnss", "map", "lidar", 100);
+    laser_odom_pub_ptr_ = std::make_shared<OdometryPublisher>(nh, "laser_odom", "map", "laser_link", 100);
+    // gnss_pub_ptr_ = std::make_shared<OdometryPublisher>(nh, "gnss", "map", "lidar", 100);
 
     front_end_ptr_ = std::make_shared<FrontEnd>();
 
@@ -41,16 +41,16 @@ bool FrontEndFlow::Run() {
     }
 
 
-    if (!InitGNSS()) {      
+/*     if (!InitGNSS()) {      去除gps数据
         return false; 
-    }
+    } */
 
     while(HasData()) {
         if (!ValidData()) {
             continue;
         }
             
-        UpdateGNSSOdometry();
+        // UpdateGNSSOdometry();
         if (UpdateLaserOdometry()) {
             PublishData();
             SaveTrajectory();
@@ -64,7 +64,7 @@ bool FrontEndFlow::Run() {
 
 bool FrontEndFlow::InitSubscribers(ros::NodeHandle& nh, const YAML::Node& config_node) {
     //
-    // init TF sub & pub:
+    // init TF sub & pub:数据集里没有tf所以需要
     //
     lidar_to_imu_tf_sub_ptr_ = std::make_shared<TFListener>(
         nh, 
@@ -85,10 +85,10 @@ bool FrontEndFlow::InitSubscribers(ros::NodeHandle& nh, const YAML::Node& config
         nh, 
         config_node["imu"]["topic_name"].as<std::string>(), config_node["imu"]["queue_size"].as<int>()
     );
-    gnss_sub_ptr_ = std::make_shared<GNSSSubscriber>(
+   /*  gnss_sub_ptr_ = std::make_shared<GNSSSubscriber>(
         nh, 
         config_node["gnss"]["topic_name"].as<std::string>(), config_node["gnss"]["queue_size"].as<int>()
-    );
+    ); */
 
     return true;
 }
@@ -97,11 +97,11 @@ bool FrontEndFlow::ReadData() {
     cloud_sub_ptr_->ParseData(cloud_data_buff_);
 
     static std::deque<IMUData> unsynced_imu_;
-    static std::deque<GNSSData> unsynced_gnss_;
-
+    /* static std::deque<GNSSData> unsynced_gnss_;
+ */
     imu_sub_ptr_->ParseData(unsynced_imu_);
-    gnss_sub_ptr_->ParseData(unsynced_gnss_);
-
+  /*   gnss_sub_ptr_->ParseData(unsynced_gnss_);
+ */
     if (cloud_data_buff_.size() == 0) {
         return false;
     }
@@ -109,11 +109,11 @@ bool FrontEndFlow::ReadData() {
     double cloud_time = cloud_data_buff_.front().time;
 
     bool valid_imu = IMUData::SyncData(unsynced_imu_, imu_data_buff_, cloud_time);
-    bool valid_gnss = GNSSData::SyncData(unsynced_gnss_, gnss_data_buff_, cloud_time);
+   /*  bool valid_gnss = GNSSData::SyncData(unsynced_gnss_, gnss_data_buff_, cloud_time); */
 
     static bool sensor_inited = false;
     if (!sensor_inited) {
-        if (!valid_imu || !valid_gnss) {
+        if (!valid_imu /* || !valid_gnss */) {
             cloud_data_buff_.pop_front();
             return false;
         }
@@ -151,16 +151,16 @@ bool FrontEndFlow::HasData() {
         return false;
     if (imu_data_buff_.size() == 0)
         return false;
-    if (gnss_data_buff_.size() == 0)
+  /*   if (gnss_data_buff_.size() == 0)
         return false;
-
+ */
     return true;
 }
 
 bool FrontEndFlow::ValidData() {
     current_cloud_data_ = cloud_data_buff_.front();
     current_imu_data_ = imu_data_buff_.front();
-    current_gnss_data_ = gnss_data_buff_.front();
+    /* current_gnss_data_ = gnss_data_buff_.front(); */
 
     double d_time = current_cloud_data_.time - current_imu_data_.time;
     if (d_time < -0.05) {
@@ -170,13 +170,13 @@ bool FrontEndFlow::ValidData() {
 
     if (d_time > 0.05) {
         imu_data_buff_.pop_front();
-        gnss_data_buff_.pop_front();
+     /*    gnss_data_buff_.pop_front(); */
         return false;
     }
 
     cloud_data_buff_.pop_front();
     imu_data_buff_.pop_front();
-    gnss_data_buff_.pop_front();
+  /*   gnss_data_buff_.pop_front(); */
 
     return true;
 }
@@ -203,13 +203,15 @@ bool FrontEndFlow::UpdateLaserOdometry() {
     }
 
     laser_odometry_ = Eigen::Matrix4f::Identity();
+    
     return front_end_ptr_->Update(current_cloud_data_, laser_odometry_);
 }
 
 bool FrontEndFlow::PublishData() {
     lidar_to_map_tf_pub_ptr_->SendTransform(laser_odometry_, current_cloud_data_.time);
     laser_odom_pub_ptr_->Publish(laser_odometry_);
-    gnss_pub_ptr_->Publish(gnss_odometry_);
+    
+  /*   gnss_pub_ptr_->Publish(gnss_odometry_); */
 
     front_end_ptr_->GetCurrentScan(current_scan_ptr_);
     cloud_pub_ptr_->Publish(current_scan_ptr_);
