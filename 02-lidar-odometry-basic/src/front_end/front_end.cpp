@@ -137,9 +137,10 @@ bool FrontEnd::Update(const CloudData& cloud_data, Eigen::Matrix4f& cloud_pose) 
         cloud_pose = current_frame_.pose;
         return true;
     }
-
+  // result_cloud_ptr_ = cloud_data.cloud_ptr;//点云不显示变化
+ // printf("%16f\n",cloud_data.time);//时间戳却在变
     // 不是第一帧，就正常匹配，注意source参数为当前点云，target为原始局部地图
-    registration_ptr_->ScanMatch(filtered_cloud_ptr, predict_pose, result_cloud_ptr_, current_frame_.pose);
+  registration_ptr_->ScanMatch(filtered_cloud_ptr, predict_pose, result_cloud_ptr_, current_frame_.pose);
     cloud_pose = current_frame_.pose;
 
     // 更新相邻两帧的相对运动
@@ -172,7 +173,7 @@ bool FrontEnd::UpdateWithNewFrame(const Frame& new_key_frame) {
     // 这一步的目的是为了把关键帧的点云保存下来
     // 由于用的是共享指针，所以直接复制只是复制了一个指针而已
     // 此时无论你放多少个关键帧在容器里，这些关键帧点云指针都是指向的同一个点云
-    key_frame.cloud_data.cloud_ptr.reset(new CloudData::CLOUD(*new_key_frame.cloud_data.cloud_ptr));
+    key_frame.cloud_data.cloud_ptr.reset(new CloudData::CLOUD(*new_key_frame.cloud_data.cloud_ptr));//reset即把指针指向new的位置
     CloudData::CLOUD_PTR transformed_cloud_ptr(new CloudData::CLOUD());
     
     // 更新局部地图

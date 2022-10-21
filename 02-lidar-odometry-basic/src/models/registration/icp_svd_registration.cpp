@@ -100,13 +100,15 @@ bool ICPSVDRegistration::ScanMatch(
         size_t point_num = GetCorrespondence(current_input_soucre,xs,ys);
         // TODO: do not have enough correspondence -- break:
         if (point_num<10)
-        break;
+            break;
         // TODO: update current transform:
         GetTransform(xs,ys,temp_transformation_);
         // TODO: whether the transformation update is significant:
         if(IsSignificant(temp_transformation_,trans_eps_))
         // TODO: update transformation:
-        transformation_ =temp_transformation_*transformation_;//
+            transformation_ =temp_transformation_*transformation_;
+
+      //
         ++curr_iter;
     }
 
@@ -117,7 +119,11 @@ bool ICPSVDRegistration::ScanMatch(
     q.normalize();
     result_pose.block<3,3>(0,0) = q.toRotationMatrix();
     
+
+    //
+   
     pcl::transformPointCloud(*input_source_, *result_cloud_ptr, result_pose);
+   
     
     return true;
 }
@@ -205,7 +211,7 @@ bool ICPSVDRegistration::IsSignificant(
             (transformation.block<3, 3>(0, 0).trace() - 1.0f) / 2.0f
         )
     );
-
+   //一直无数据
     return (
         (translation_magnitude > trans_eps) || 
         (rotation_magnitude > trans_eps)

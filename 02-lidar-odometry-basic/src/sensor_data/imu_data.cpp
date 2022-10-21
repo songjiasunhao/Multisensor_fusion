@@ -59,6 +59,7 @@ bool IMUData::SyncData(std::deque<IMUData>& UnsyncedData, std::deque<IMUData>& S
     synced_data.angular_velocity.z = front_data.angular_velocity.z * front_scale + back_data.angular_velocity.z * back_scale;
     // 四元数插值有线性插值和球面插值，球面插值更准确，但是两个四元数差别不大是，二者精度相当
     // 由于是对相邻两时刻姿态插值，姿态差比较小，所以可以用线性插值
+    
     synced_data.orientation.x = front_data.orientation.x * front_scale + back_data.orientation.x * back_scale;
     synced_data.orientation.y = front_data.orientation.y * front_scale + back_data.orientation.y * back_scale;
     synced_data.orientation.z = front_data.orientation.z * front_scale + back_data.orientation.z * back_scale;

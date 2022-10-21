@@ -16,6 +16,7 @@ IMUSubscriber::IMUSubscriber(ros::NodeHandle& nh, std::string topic_name, size_t
 void IMUSubscriber::msg_callback(const sensor_msgs::ImuConstPtr& imu_msg_ptr) {
     IMUData imu_data;
     imu_data.time = imu_msg_ptr->header.stamp.toSec();
+    
 
     imu_data.linear_acceleration.x = imu_msg_ptr->linear_acceleration.x;
     imu_data.linear_acceleration.y = imu_msg_ptr->linear_acceleration.y;

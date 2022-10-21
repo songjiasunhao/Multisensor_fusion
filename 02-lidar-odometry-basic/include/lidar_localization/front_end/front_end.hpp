@@ -71,6 +71,7 @@ class FrontEnd {
     CloudData::CLOUD_PTR local_map_ptr_;
     CloudData::CLOUD_PTR global_map_ptr_;
     CloudData::CLOUD_PTR result_cloud_ptr_;
+  
     Frame current_frame_;
 
     Eigen::Matrix4f init_pose_ = Eigen::Matrix4f::Identity();

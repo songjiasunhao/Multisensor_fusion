@@ -28,7 +28,7 @@ bool GNSSData::SyncData(std::deque<GNSSData>& UnsyncedData, std::deque<GNSSData>
     // 传感器数据按时间序列排列，在传感器数据中为同步的时间点找到合适的时间位置
     // 即找到与同步时间相邻的左右两个数据
     // 需要注意的是，如果左右相邻数据有一个离同步时间差值比较大，则说明数据有丢失，时间离得太远不适合做差值
-    while (UnsyncedData.size() >= 2) {
+ while (UnsyncedData.size() >= 2) {
         if (UnsyncedData.front().time > sync_time)
             return false;
         if (UnsyncedData.at(1).time < sync_time) {
