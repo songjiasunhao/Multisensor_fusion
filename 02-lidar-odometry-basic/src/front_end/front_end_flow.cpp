@@ -61,7 +61,7 @@ bool FrontEndFlow::Run() {
 
 bool FrontEndFlow::InitSubscribers(ros::NodeHandle& nh, const YAML::Node& config_node) {
     //
-    // init TF sub & pub:
+    // init TF sub & pub:数据集里没有tf所以需要
     //
     lidar_to_imu_tf_sub_ptr_ = std::make_shared<TFListener>(
         nh, 
@@ -146,14 +146,13 @@ bool FrontEndFlow::HasData() {
         return false;
     if (imu_data_buff_.size() == 0)
         return false;
-
+        
     return true;
 }
 
 bool FrontEndFlow::ValidData() {
  /* current_cloud_data_ = cloud_data_buff_.front();
     current_imu_data_ = imu_data_buff_.front();
-
 
     double d_time = current_cloud_data_.time - current_imu_data_.time;
     if (d_time < -0.05) {//
@@ -163,7 +162,6 @@ bool FrontEndFlow::ValidData() {
 
     if (d_time > 0.05) {
         imu_data_buff_.pop_front();
-
         return false;
     }
  */
@@ -203,7 +201,6 @@ bool FrontEndFlow::UpdateLaserOdometry() {
     }
 
     laser_odometry_ = Eigen::Matrix4f::Identity();
-
     return front_end_ptr_->Update(current_cloud_data_, laser_odometry_);
 }
 
