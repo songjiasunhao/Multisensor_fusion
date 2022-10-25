@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10.2)
-project(lidar_localization)
+project(lidar_odometry_basic)
 
 SET(CMAKE_BUILD_TYPE "Release")
 SET(CMAKE_CXX_FLAGS_RELEASE "$ENV{CXXFLAGS} -O3 -Wall")
@@ -10,12 +10,12 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
   std_msgs
+  std_srvs
   pcl_ros
   geometry_msgs
   tf
   eigen_conversions
   message_generation 
-  std_srvs
 )
 
 add_service_files(

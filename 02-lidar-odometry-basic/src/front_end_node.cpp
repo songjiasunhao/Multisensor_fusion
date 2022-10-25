@@ -13,15 +13,15 @@
 
 #include "lidar_localization/front_end/front_end_flow.hpp"
 
-#include <lidar_localization/saveMap.h>
+#include <lidar_odometry_basic/saveMap.h>
 
 using namespace lidar_localization;
 
 bool save_map = false;
 
 bool save_map_callback(
-    saveMap::Request &request, 
-    saveMap::Response &response
+    lidar_odometry_basic::saveMap::Request &request, //这里需要修改命名空间
+    lidar_odometry_basic::saveMap::Response &response
 ) {
     save_map = true;
     response.succeed = true;

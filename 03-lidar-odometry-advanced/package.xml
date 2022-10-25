@@ -1,13 +1,13 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>lidar_odometry_basic</name>
-  <version>1.0.0</version>
+  <name>lidar_odometry_advanced</name>
+  <version>0.0.0</version>
   <description>The lidar_localization package</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag -->
   <!-- Example:  -->
   <!-- <maintainer email="jane.doe@example.com">Jane Doe</maintainer> -->
-  <maintainer email="alexgecontrol@qq.com">Ge Yao</maintainer>
+  <maintainer email="rq@todo.todo">rq</maintainer>
 
 
   <!-- One license tag required, multiple allowed, one license per tag -->
@@ -59,14 +59,15 @@
   <build_export_depend>message_generation</build_export_depend>
   <exec_depend>message_runtime</exec_depend>
 
-  <depend>sensor_msgs</depend>
-  <depend>pcl_ros</depend>
+  <depend>rosbag</depend>
   <depend>std_msgs</depend>
+  <depend>sensor_msgs</depend>
   <depend>geometry_msgs</depend>
+  <depend>nav_msgs</depend>
   <depend>tf</depend>
+  <depend>pcl_ros</depend>
   <depend>eigen_conversions</depend>
-  
-
+  <depend>std_srvs</depend>
 
   <!-- The export tag contains other, unspecified, tags -->
   <export>
