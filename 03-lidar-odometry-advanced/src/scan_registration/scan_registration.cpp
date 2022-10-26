@@ -81,7 +81,12 @@ bool ScanRegistration::Update(
 
     // get feature points:
     GetFeaturePoints(*output_cloud, corner_sharp, corner_less_sharp, surf_flat, surf_less_flat);
+    
+  
 
+
+    
+    
     return true;
 }
 

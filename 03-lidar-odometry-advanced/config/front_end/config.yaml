@@ -1,41 +1,43 @@
 scan_registration:
     subscriber:
         velodyne:
-            topic_name: /kitti/velo/pointcloud
-            frame_id: velo_link
-            queue_size: 100
+            topic_name: /lslidar_point_cloud
+            #topic_name: /kitti/velo/pointcloud
+            frame_id: laser_link
+            #frame_id: velo_link
+            queue_size: 100000
     publisher:
         filtered:
             topic_name: /kitti/velo/pointcloud/filtered
-            frame_id: velo_link
+            frame_id: laser_link
             queue_size: 100
         sharp:
             topic_name: /kitti/velo/pointcloud/sharp
-            frame_id: velo_link
+            frame_id: laser_link
             queue_size: 100
         less_sharp:
             topic_name: /kitti/velo/pointcloud/less_sharp
-            frame_id: velo_link
+            frame_id: laser_link
             queue_size: 100
         flat:
             topic_name: /kitti/velo/pointcloud/flat
-            frame_id: velo_link
+            frame_id: laser_link
             queue_size: 100
         less_flat:
             topic_name: /kitti/velo/pointcloud/less_flat
-            frame_id: velo_link
+            frame_id: laser_link
             queue_size: 100
         removed:
             topic_name: /kitti/velo/pointcloud/removed
-            frame_id: velo_link
+            frame_id: laser_link
             queue_size: 100
     param:
         # used later for motion compensation:
         scan_period: 0.10
         # num. lidar scans:
-        num_scans: 64
+        num_scans: 16
         # only measurements taken outside this range is kept:
-        min_range: 5.0
+        min_range: 0
         # neighborhood size for curvature calculation:
         neighborhood_size: 5
         # num. sectors for feature point generation:
@@ -49,7 +51,8 @@ front_end:
         odometry:
             topic_name: /odometry/lidar/scan_to_scan
             frame_id: /map
-            child_frame_id: /velo_link
+            child_frame_id: /laser_link
+            #child_frame_id: /velo_link
             queue_size: 100
         path:
             topic_name: /trajectory/lidar/scan_to_scan

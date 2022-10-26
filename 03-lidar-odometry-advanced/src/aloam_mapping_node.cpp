@@ -217,7 +217,7 @@ void laserOdometryHandler(const nav_msgs::Odometry::ConstPtr &laserOdometry)
 
 	nav_msgs::Odometry odomAftMapped;
 	odomAftMapped.header.frame_id = "/map";
-	odomAftMapped.child_frame_id = "/velo_link";
+	odomAftMapped.child_frame_id = "/laser_link";
 	odomAftMapped.header.stamp = laserOdometry->header.stamp;
 	odomAftMapped.pose.pose.orientation.x = q_w_curr.x();
 	odomAftMapped.pose.pose.orientation.y = q_w_curr.y();
@@ -854,7 +854,7 @@ void process()
 
 			nav_msgs::Odometry odomAftMapped;
 			odomAftMapped.header.frame_id = "/map";
-			odomAftMapped.child_frame_id = "/velo_link";
+			odomAftMapped.child_frame_id = "/laser_link";
 			odomAftMapped.header.stamp = ros::Time().fromSec(timeLaserOdometry);
 			odomAftMapped.pose.pose.orientation.x = q_w_curr.x();
 			odomAftMapped.pose.pose.orientation.y = q_w_curr.y();
@@ -892,7 +892,7 @@ void process()
 				tf::StampedTransform(
 					transform, 
 					odomAftMapped.header.stamp, 
-					"/map", "/velo_link"
+					"/map", "/laser_link"
 				)
 			);
 

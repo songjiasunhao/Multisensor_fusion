@@ -3,12 +3,16 @@
 # 
 measurements:
     lidar:
-        topic_name: /kitti/velo/pointcloud
-        frame_id: velo_link
+        topic_name: /lslidar_point_cloud
+        #topic_name: /kitti/velo/pointcloud
+        frame_id: laser_link
+        #frame_id: velo_link
         queue_size: 100000
     imu:
-        topic_name: /kitti/oxts/imu
+        topic_name: /imu/data 
+        #topic_name: /kitti/oxts/imu
         frame_id: imu_link
+        #frame_id: imu_link
         queue_size: 1000000
     gnss:
         topic_name: /kitti/oxts/gps/fix
