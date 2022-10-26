@@ -126,8 +126,8 @@ bool ScanRegistrationFlow::HasData(void) {
 bool ScanRegistrationFlow::ValidData() {
     current_cloud_data_ = cloud_data_buff_.front();
 
-    cloud_data_buff_.pop_front();
-
+    //cloud_data_buff_.pop_front();
+    cloud_data_buff_.clear();
     return true;
 }
 
