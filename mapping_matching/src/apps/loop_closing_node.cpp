@@ -8,9 +8,10 @@
 
 #include "lidar_localization/global_defination/global_defination.h"
 #include "lidar_localization/mapping/loop_closing/loop_closing_flow.hpp"
-#include <lidar_localization/saveScanContext.h>
+#include <mapping_matching/saveScanContext.h>
 
 using namespace lidar_localization;
+using namespace mapping_matching;
 
 bool save_scan_context = false;
 

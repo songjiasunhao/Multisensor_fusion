@@ -6,11 +6,12 @@
 #include <ros/ros.h>
 #include "glog/logging.h"
 
-#include <lidar_localization/optimizeMap.h>
+#include <mapping_matching/optimizeMap.h>
 #include "lidar_localization/global_defination/global_defination.h"
 #include "lidar_localization/mapping/back_end/back_end_flow.hpp"
 
 using namespace lidar_localization;
+using namespace mapping_matching;
 
 std::shared_ptr<BackEndFlow> _back_end_flow_ptr;
 bool _need_optimize_map = false;

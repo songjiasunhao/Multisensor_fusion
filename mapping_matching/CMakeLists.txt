@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10.2)
-project(04-mapping-and-matching)
+project(mapping_matching)
 
 SET(CMAKE_BUILD_TYPE "Release")
 SET(CMAKE_CXX_FLAGS_RELEASE "$ENV{CXXFLAGS} -O3 -Wall")
@@ -47,23 +47,25 @@ file(GLOB_RECURSE ALL_SRCS "*.cpp")
 file(GLOB_RECURSE NODE_SRCS "src/apps/*_node.cpp")
 list(REMOVE_ITEM ALL_SRCS ${NODE_SRCS})
 
+#加入 ${${PROJECT_NAME}_EXPORTED_TARGETS}来注意编译顺序
+
 add_executable(test_frame_node src/apps/test_frame_node.cpp ${ALL_SRCS})
 target_link_libraries(test_frame_node ${catkin_LIBRARIES} ${ALL_TARGET_LIBRARIES})
 
 add_executable(data_pretreat_node src/apps/data_pretreat_node.cpp ${ALL_SRCS})
-add_dependencies(data_pretreat_node ${catkin_EXPORTED_TARGETS})
+add_dependencies(data_pretreat_node ${catkin_EXPORTED_TARGETS} )
 target_link_libraries(data_pretreat_node ${catkin_LIBRARIES} ${ALL_TARGET_LIBRARIES})
 
-add_executable(front_end_node src/apps/front_end_node.cpp ${ALL_SRCS})
-add_dependencies(front_end_node ${catkin_EXPORTED_TARGETS})
-target_link_libraries(front_end_node ${catkin_LIBRARIES} ${ALL_TARGET_LIBRARIES})
+add_executable(front_end_node_mp src/apps/front_end_node.cpp ${ALL_SRCS})
+add_dependencies(front_end_node_mp ${catkin_EXPORTED_TARGETS} )
+target_link_libraries(front_end_node_mp ${catkin_LIBRARIES} ${ALL_TARGET_LIBRARIES})
 
 add_executable(back_end_node src/apps/back_end_node.cpp ${ALL_SRCS})
 add_dependencies(back_end_node ${catkin_EXPORTED_TARGETS} ${PROJECT_NAME}_generate_messages_cpp)
 target_link_libraries(back_end_node ${catkin_LIBRARIES} ${ALL_TARGET_LIBRARIES})
 
 add_executable(loop_closing_node src/apps/loop_closing_node.cpp ${ALL_SRCS})
-add_dependencies(loop_closing_node ${catkin_EXPORTED_TARGETS})
+add_dependencies(loop_closing_node ${catkin_EXPORTED_TARGETS} )
 target_link_libraries(loop_closing_node ${catkin_LIBRARIES} ${ALL_TARGET_LIBRARIES})
 
 add_executable(viewer_node src/apps/viewer_node.cpp ${ALL_SRCS})
@@ -71,7 +73,7 @@ add_dependencies(viewer_node ${catkin_EXPORTED_TARGETS} ${PROJECT_NAME}_generate
 target_link_libraries(viewer_node ${catkin_LIBRARIES} ${ALL_TARGET_LIBRARIES})
 
 add_executable(matching_node src/apps/matching_node.cpp ${ALL_SRCS})
-add_dependencies(matching_node ${catkin_EXPORTED_TARGETS})
+add_dependencies(matching_node ${catkin_EXPORTED_TARGETS} ${${PROJECT_NAME}_EXPORTED_TARGETS})
 target_link_libraries(matching_node ${catkin_LIBRARIES} ${ALL_TARGET_LIBRARIES})
 
 #############
@@ -93,7 +95,7 @@ target_link_libraries(matching_node ${catkin_LIBRARIES} ${ALL_TARGET_LIBRARIES})
 install(TARGETS 
         test_frame_node
         data_pretreat_node
-        front_end_node
+        front_end_node_mp
         back_end_node
         loop_closing_node
         viewer_node
