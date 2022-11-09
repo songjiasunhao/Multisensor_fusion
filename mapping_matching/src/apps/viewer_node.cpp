@@ -11,7 +11,7 @@
 #include "lidar_localization/mapping/viewer/viewer_flow.hpp"
 
 using namespace lidar_localization;
-using namespace mapping_matching;
+using namespace mapping_matching;//要注意srv生成头文件的命名空间问题
 
 std::shared_ptr<ViewerFlow> _viewer_flow_ptr;
 bool _need_save_map = false;

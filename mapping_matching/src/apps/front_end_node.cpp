@@ -16,7 +16,7 @@ int main(int argc, char *argv[]) {
     FLAGS_log_dir = WORK_SPACE_PATH + "/Log";
     FLAGS_alsologtostderr = 1;
 
-    ros::init(argc, argv, "front_end_node");
+    ros::init(argc, argv, "front_end_node_mp");
     ros::NodeHandle nh;
 
     std::string cloud_topic, odom_topic;
