@@ -13,7 +13,7 @@ MatchingFlow::MatchingFlow(ros::NodeHandle& nh) {
     // a. undistorted Velodyne measurement: 
     cloud_sub_ptr_ = std::make_shared<CloudSubscriber>(nh, "/synced_cloud", 100000);
     // b. lidar pose in map frame:
-    gnss_sub_ptr_ = std::make_shared<OdometrySubscriber>(nh, "/synced_gnss", 100000);
+    //gnss_sub_ptr_ = std::make_shared<OdometrySubscriber>(nh, "/synced_gnss", 100000);//machting没有laser_odom数据
 
     // publisher:
     // a. global point cloud map:
@@ -58,7 +58,7 @@ bool MatchingFlow::Run() {
 bool MatchingFlow::ReadData() {
     // pipe lidar measurements and pose into buffer:
     cloud_sub_ptr_->ParseData(cloud_data_buff_);
-    gnss_sub_ptr_->ParseData(gnss_data_buff_);
+    //gnss_sub_ptr_->ParseData(gnss_data_buff_);
     return true;
 }
 
@@ -68,10 +68,10 @@ bool MatchingFlow::HasData() {
     
     if (matching_ptr_->HasInited())
         return true;
-    
+/*     
     if (gnss_data_buff_.size() == 0)
         return false;
-        
+         */
     return true;
 }
 
@@ -80,11 +80,11 @@ bool MatchingFlow::ValidData() {
 
     if (matching_ptr_->HasInited()) {
         cloud_data_buff_.pop_front();
-        gnss_data_buff_.clear();
+       // gnss_data_buff_.clear();
         return true;
     }
 
-    current_gnss_data_ = gnss_data_buff_.front();
+  /*   current_gnss_data_ = gnss_data_buff_.front();
 
     double diff_time = current_cloud_data_.time - current_gnss_data_.time;
     if (diff_time < -0.05) {
@@ -96,9 +96,9 @@ bool MatchingFlow::ValidData() {
         gnss_data_buff_.pop_front();
         return false;
     }
-
+ */
     cloud_data_buff_.pop_front();
-    gnss_data_buff_.pop_front();
+    //gnss_data_buff_.pop_front();
 
     return true;
 }
@@ -116,8 +116,8 @@ bool MatchingFlow::UpdateMatching() {
         
         matching_ptr_->SetInitPose(init_pose);
         matching_ptr_->SetInited();原始代码*/
-       // matching_ptr_->SetScanContextPose(current_cloud_data_);//回环检测确定位姿
-       matching_ptr_->SetGNSSPose(current_gnss_data_.pose);
+        matching_ptr_->SetScanContextPose(current_cloud_data_);//回环检测确定位姿
+      // matching_ptr_->SetGNSSPose(current_gnss_data_.pose);//
     }
 
     return matching_ptr_->Update(current_cloud_data_, laser_odometry_);

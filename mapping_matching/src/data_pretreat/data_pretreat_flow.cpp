@@ -12,11 +12,11 @@ namespace lidar_localization {
 DataPretreatFlow::DataPretreatFlow(ros::NodeHandle& nh, std::string cloud_topic) {
     // subscriber
     // a. velodyne measurement:
-    //cloud_sub_ptr_ = std::make_shared<CloudSubscriber>(nh, "/kitti/velo/pointcloud", 100000);
-    cloud_sub_ptr_ = std::make_shared<CloudSubscriber>(nh, "/lslidar_point_cloud", 100000);//修改
+    cloud_sub_ptr_ = std::make_shared<CloudSubscriber>(nh, "/kitti/velo/pointcloud", 100000);
+    //cloud_sub_ptr_ = std::make_shared<CloudSubscriber>(nh, "/lslidar_point_cloud", 100000);//修改
     // b. OXTS IMU:
-   //imu_sub_ptr_ = std::make_shared<IMUSubscriber>(nh, "/kitti/oxts/imu", 1000000);
-    imu_sub_ptr_ = std::make_shared<IMUSubscriber>(nh, "/imu/data", 1000000);//修改
+   imu_sub_ptr_ = std::make_shared<IMUSubscriber>(nh, "/kitti/oxts/imu", 1000000);
+    //imu_sub_ptr_ = std::make_shared<IMUSubscriber>(nh, "/imu/data", 1000000);//修改
     // c. OXTS velocity:
    // velocity_sub_ptr_ = std::make_shared<VelocitySubscriber>(nh, "/kitti/oxts/gps/vel", 1000000);
     // d. OXTS GNSS:
@@ -25,10 +25,10 @@ DataPretreatFlow::DataPretreatFlow(ros::NodeHandle& nh, std::string cloud_topic)
 
     // publisher
     cloud_pub_ptr_ = std::make_shared<CloudPublisher>(nh, cloud_topic, "/velo_link", 100);
-    gnss_pub_ptr_ = std::make_shared<OdometryPublisher>(nh, "/synced_gnss", "/map", "/velo_link", 100);
+   // gnss_pub_ptr_ = std::make_shared<OdometryPublisher>(nh, "/synced_gnss", "/map", "/velo_link", 100);
 
     // motion compensation for lidar measurement:
-    distortion_adjust_ptr_ = std::make_shared<DistortionAdjust>();
+    //distortion_adjust_ptr_ = std::make_shared<DistortionAdjust>();
 }
 
 bool DataPretreatFlow::Run() {
@@ -47,7 +47,7 @@ bool DataPretreatFlow::Run() {
         if (!ValidData())
             continue;
 
-        TransformData();
+        //TransformData();
         PublishData();
     }
 
@@ -63,7 +63,6 @@ bool DataPretreatFlow::ReadData() {
     cloud_sub_ptr_->ParseData(cloud_data_buff_);
 
     imu_sub_ptr_->ParseData(unsynced_imu_);
-    std::cout<<"1";
  /*    velocity_sub_ptr_->ParseData(unsynced_velocity_);
     gnss_sub_ptr_->ParseData(unsynced_gnss_); */
 
@@ -81,14 +80,14 @@ bool DataPretreatFlow::ReadData() {
  */
     // only mark lidar as 'inited' when all the three sensors are synced:
     //只有一次可以pop点云，但是由于imu频率和后处理的问题，可能会出现imu_buff中的第一个时间戳大于sync_time的情况
-    /* static bool sensor_inited = false;
-    if (!sensor_inited) { */
+    static bool sensor_inited = false;
+    if (!sensor_inited) { 
         if (!valid_imu/*  || !valid_velocity || !valid_gnss */) {
             cloud_data_buff_.pop_front();
             return false;
-  /*       }
-        sensor_inited = true;
-    } */
+         }
+            sensor_inited = true;
+    }  
 
     return true;
 }
@@ -182,15 +181,15 @@ bool DataPretreatFlow::TransformData() {
     // this is lidar velocity:
     current_velocity_data_.TransformCoordinate(lidar_to_imu_);
     // motion compensation for lidar measurements:
-    distortion_adjust_ptr_->SetMotionInfo(0.1, current_velocity_data_);
-    distortion_adjust_ptr_->AdjustCloud(current_cloud_data_.cloud_ptr, current_cloud_data_.cloud_ptr);
+   // distortion_adjust_ptr_->SetMotionInfo(0.1, current_velocity_data_);
+    //distortion_adjust_ptr_->AdjustCloud(current_cloud_data_.cloud_ptr, current_cloud_data_.cloud_ptr);
 
     return true;
 }
 
 bool DataPretreatFlow::PublishData() {
     cloud_pub_ptr_->Publish(current_cloud_data_.cloud_ptr, current_cloud_data_.time);
-    gnss_pub_ptr_->Publish(gnss_pose_, current_gnss_data_.time);
+    //gnss_pub_ptr_->Publish(gnss_pose_, current_gnss_data_.time);
 
     return true;
 }

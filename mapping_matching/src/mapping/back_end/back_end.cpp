@@ -239,7 +239,6 @@ bool BackEnd::MaybeOptimized() {
 
     if (
         new_key_frame_cnt_ >= graph_optimizer_config_.optimize_step_with_key_frame ||
-        new_gnss_cnt_ >= graph_optimizer_config_.optimize_step_with_gnss ||
         new_loop_cnt_ >= graph_optimizer_config_.optimize_step_with_loop
     ) {
         need_optimize = true;
@@ -249,7 +248,7 @@ bool BackEnd::MaybeOptimized() {
         return false;
 
     // reset key frame counters:
-    new_key_frame_cnt_ = new_gnss_cnt_ = new_loop_cnt_ = 0;
+    new_key_frame_cnt_  = new_loop_cnt_ = 0;
 
     if (graph_optimizer_ptr_->Optimize())
         has_new_optimized_ = true;

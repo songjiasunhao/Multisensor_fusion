@@ -13,14 +13,14 @@
 namespace lidar_localization {
 BackEndFlow::BackEndFlow(ros::NodeHandle& nh, std::string cloud_topic, std::string odom_topic) {
     cloud_sub_ptr_ = std::make_shared<CloudSubscriber>(nh, cloud_topic, 100000);
-    gnss_pose_sub_ptr_ = std::make_shared<OdometrySubscriber>(nh, "/synced_gnss", 100000);
+   // gnss_pose_sub_ptr_ = std::make_shared<OdometrySubscriber>(nh, "/synced_gnss", 100000);
     laser_odom_sub_ptr_ = std::make_shared<OdometrySubscriber>(nh, odom_topic, 100000);
     loop_pose_sub_ptr_ = std::make_shared<LoopPoseSubscriber>(nh, "/loop_pose", 100000);
 
     transformed_odom_pub_ptr_ = std::make_shared<OdometryPublisher>(nh, "/transformed_odom", "/map", "/lidar", 100);
     key_scan_pub_ptr_ = std::make_shared<CloudPublisher>(nh, "/key_scan", "/velo_link", 100);
     key_frame_pub_ptr_ = std::make_shared<KeyFramePublisher>(nh, "/key_frame", "/map", 100);
-    key_gnss_pub_ptr_ = std::make_shared<KeyFramePublisher>(nh, "/key_gnss", "/map", 100);
+    key_gnss_pub_ptr_ = std::make_shared<KeyFramePublisher>(nh, "/key_gnss", "/map", 100);//此时发出的gnss已经是laser_odom
     key_frames_pub_ptr_ = std::make_shared<KeyFramesPublisher>(nh, "/optimized_key_frames", "/map", 100);
 
     back_end_ptr_ = std::make_shared<BackEnd>();
@@ -39,7 +39,7 @@ bool BackEndFlow::Run() {
         if (!ValidData())
             continue;
 
-        UpdateBackEnd();
+       UpdateBackEnd();
 
         PublishData();
     }
@@ -59,7 +59,7 @@ bool BackEndFlow::ForceOptimize() {
 
 bool BackEndFlow::ReadData() {
     cloud_sub_ptr_->ParseData(cloud_data_buff_);
-    gnss_pose_sub_ptr_->ParseData(gnss_pose_data_buff_);
+  //  gnss_pose_sub_ptr_->ParseData(gnss_pose_data_buff_);
     laser_odom_sub_ptr_->ParseData(laser_odom_data_buff_);
     loop_pose_sub_ptr_->ParseData(loop_pose_data_buff_);
 
@@ -77,8 +77,8 @@ bool BackEndFlow::MaybeInsertLoopPose() {
 bool BackEndFlow::HasData() {
     if (cloud_data_buff_.size() == 0)
         return false;
-    if (gnss_pose_data_buff_.size() == 0)
-        return false;
+  /*   if (gnss_pose_data_buff_.size() == 0)
+        return false; */
     if (laser_odom_data_buff_.size() == 0)
         return false;
 
@@ -87,29 +87,29 @@ bool BackEndFlow::HasData() {
 
 bool BackEndFlow::ValidData() {
     current_cloud_data_ = cloud_data_buff_.front();
-    current_gnss_pose_data_ = gnss_pose_data_buff_.front();
+    //current_gnss_pose_data_ = gnss_pose_data_buff_.front();
     current_laser_odom_data_ = laser_odom_data_buff_.front();
 
-    double diff_gnss_time = current_cloud_data_.time - current_gnss_pose_data_.time;
+    //double diff_gnss_time = current_cloud_data_.time - current_gnss_pose_data_.time;
     double diff_laser_time = current_cloud_data_.time - current_laser_odom_data_.time;
 
-    if (diff_gnss_time < -0.05 || diff_laser_time < -0.05) {
+    if (/* diff_gnss_time < -0.05 || */ diff_laser_time < -0.05) {
         cloud_data_buff_.pop_front();
         return false;
     }
 
-    if (diff_gnss_time > 0.05) {
+/*     if (diff_gnss_time > 0.05) {
         gnss_pose_data_buff_.pop_front();
         return false;
     }
-
+ */
     if (diff_laser_time > 0.05) {
         laser_odom_data_buff_.pop_front();
         return false;
     }
 
     cloud_data_buff_.pop_front();
-    gnss_pose_data_buff_.pop_front();
+    //gnss_pose_data_buff_.pop_front();
     laser_odom_data_buff_.pop_front();
 
     return true;
@@ -122,12 +122,14 @@ bool BackEndFlow::UpdateBackEnd() {
     if (!odometry_inited) {
         odometry_inited = true;
         // lidar odometry frame in map frame:
-        odom_init_pose = current_gnss_pose_data_.pose * current_laser_odom_data_.pose.inverse();
+        odom_init_pose =Eigen::Matrix4f::Identity();
+        // current_gnss_pose_data_.pose * current_laser_odom_data_.pose.inverse();
     }
     // current lidar odometry in map frame:
     current_laser_odom_data_.pose = odom_init_pose * current_laser_odom_data_.pose;
 
-    // optimization is carried out in map frame:
+    // optimization is carried out in map frame: 无gnss数据将laser_odom数据作为gnss
+    current_gnss_pose_data_ = current_laser_odom_data_;
     return back_end_ptr_->Update(current_cloud_data_, current_laser_odom_data_, current_gnss_pose_data_);
 }
 
@@ -146,7 +148,7 @@ bool BackEndFlow::PublishData() {
         key_frame_pub_ptr_->Publish(key_frame);
 
         back_end_ptr_->GetLatestKeyGNSS(key_frame);
-        key_gnss_pub_ptr_->Publish(key_frame);
+        key_gnss_pub_ptr_->Publish(key_frame);//此处pub的odom的
     }
 
     if (back_end_ptr_->HasNewOptimized()) {
