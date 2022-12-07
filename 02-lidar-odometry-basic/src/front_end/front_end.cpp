@@ -160,7 +160,7 @@ bool FrontEnd::Update(const CloudData& cloud_data, Eigen::Matrix4f& cloud_pose) 
     return true;
 }
 
-bool FrontEnd::(const Eigen::Matrix4f& init_pose) {
+bool FrontEnd::SetInitPose(const Eigen::Matrix4f& init_pose) {
     init_pose_ = init_pose;
     return true;
 }

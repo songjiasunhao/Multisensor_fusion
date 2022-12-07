@@ -12,19 +12,19 @@ namespace lidar_localization {
 DataPretreatFlow::DataPretreatFlow(ros::NodeHandle& nh, std::string cloud_topic) {
     // subscriber
     // a. velodyne measurement:
-    cloud_sub_ptr_ = std::make_shared<CloudSubscriber>(nh, "/kitti/velo/pointcloud", 100000);
-    //cloud_sub_ptr_ = std::make_shared<CloudSubscriber>(nh, "/lslidar_point_cloud", 100000);//修改
+   // cloud_sub_ptr_ = std::make_shared<CloudSubscriber>(nh, "/kitti/velo/pointcloud", 100000);
+    cloud_sub_ptr_ = std::make_shared<CloudSubscriber>(nh, "/lslidar_point_cloud", 100000);//修改
     // b. OXTS IMU:
-   imu_sub_ptr_ = std::make_shared<IMUSubscriber>(nh, "/kitti/oxts/imu", 1000000);
-    //imu_sub_ptr_ = std::make_shared<IMUSubscriber>(nh, "/imu/data", 1000000);//修改
+  // imu_sub_ptr_ = std::make_shared<IMUSubscriber>(nh, "/kitti/oxts/imu", 1000000);
+    imu_sub_ptr_ = std::make_shared<IMUSubscriber>(nh, "/imu/data", 1000000);//修改
     // c. OXTS velocity:
    // velocity_sub_ptr_ = std::make_shared<VelocitySubscriber>(nh, "/kitti/oxts/gps/vel", 1000000);
     // d. OXTS GNSS:
    //gnss_sub_ptr_ = std::make_shared<GNSSSubscriber>(nh, "/kitti/oxts/gps/fix", 1000000); //修改
-    lidar_to_imu_ptr_ = std::make_shared<TFListener>(nh, "/imu_link", "/velo_link");
+    lidar_to_imu_ptr_ = std::make_shared<TFListener>(nh, "/imu_link", "/laser_link");
 
     // publisher
-    cloud_pub_ptr_ = std::make_shared<CloudPublisher>(nh, cloud_topic, "/velo_link", 100);
+    cloud_pub_ptr_ = std::make_shared<CloudPublisher>(nh, cloud_topic, "/laser_link", 100);
    // gnss_pub_ptr_ = std::make_shared<OdometryPublisher>(nh, "/synced_gnss", "/map", "/velo_link", 100);
 
     // motion compensation for lidar measurement:
