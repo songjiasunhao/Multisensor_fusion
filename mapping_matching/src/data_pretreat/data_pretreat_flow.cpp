@@ -7,6 +7,7 @@
 
 #include "glog/logging.h"
 #include "lidar_localization/global_defination/global_defination.h"
+# include <pcl/filters/filter.h>
 
 namespace lidar_localization {
 DataPretreatFlow::DataPretreatFlow(ros::NodeHandle& nh, std::string cloud_topic) {
@@ -55,39 +56,39 @@ bool DataPretreatFlow::Run() {
 }
 
 bool DataPretreatFlow::ReadData() {
- static std::deque<IMUData> unsynced_imu_;
- /*    static std::deque<VelocityData> unsynced_velocity_;
+/*  static std::deque<IMUData> unsynced_imu_;
+    static std::deque<VelocityData> unsynced_velocity_;
     static std::deque<GNSSData> unsynced_gnss_;
  */
     // fetch lidar measurements from buffer:
     cloud_sub_ptr_->ParseData(cloud_data_buff_);
 
-    imu_sub_ptr_->ParseData(unsynced_imu_);
+    imu_sub_ptr_->ParseData(imu_data_buff_);
  /*    velocity_sub_ptr_->ParseData(unsynced_velocity_);
     gnss_sub_ptr_->ParseData(unsynced_gnss_); */
 
     if (cloud_data_buff_.size() == 0)
         return false;
 
-    // use timestamp of lidar measurement as reference:
-    double cloud_time = cloud_data_buff_.front().time;
-    // sync IMU, velocity and GNSS with lidar measurement:
-    // find the two closest measurement around lidar measurement time
-    // then use linear interpolation to generate synced measurement:
-    bool valid_imu = IMUData::SyncData(unsynced_imu_, imu_data_buff_, cloud_time);
-  /*   bool valid_velocity = VelocityData::SyncData(unsynced_velocity_, velocity_data_buff_, cloud_time);
-    bool valid_gnss = GNSSData::SyncData(unsynced_gnss_, gnss_data_buff_, cloud_time);
- */
-    // only mark lidar as 'inited' when all the three sensors are synced:
-    //只有一次可以pop点云，但是由于imu频率和后处理的问题，可能会出现imu_buff中的第一个时间戳大于sync_time的情况
-    static bool sensor_inited = false;
-    if (!sensor_inited) { 
-        if (!valid_imu/*  || !valid_velocity || !valid_gnss */) {
-            cloud_data_buff_.pop_front();
-            return false;
-         }
-            sensor_inited = true;
-    }  
+//     // use timestamp of lidar measurement as reference:
+//     double cloud_time = cloud_data_buff_.front().time;
+//     // sync IMU, velocity and GNSS with lidar measurement:
+//     // find the two closest measurement around lidar measurement time
+//     // then use linear interpolation to generate synced measurement:
+//     bool valid_imu = IMUData::SyncData(unsynced_imu_, imu_data_buff_, cloud_time);
+//   /*   bool valid_velocity = VelocityData::SyncData(unsynced_velocity_, velocity_data_buff_, cloud_time);
+//     bool valid_gnss = GNSSData::SyncData(unsynced_gnss_, gnss_data_buff_, cloud_time);
+//  */
+//     // only mark lidar as 'inited' when all the three sensors are synced:
+//     //只有一次可以pop点云，但是由于imu频率和后处理的问题，可能会出现imu_buff中的第一个时间戳大于sync_time的情况
+//     static bool sensor_inited = false;
+//     if (!sensor_inited) { 
+//         if (!valid_imu/*  || !valid_velocity || !valid_gnss */) {
+//             cloud_data_buff_.pop_front();
+//             return false;
+//          }
+//             sensor_inited = true;
+//     }  
 
     return true;
 }
@@ -129,15 +130,15 @@ bool DataPretreatFlow::HasData() {
 }
 
 bool DataPretreatFlow::ValidData() {
-    current_cloud_data_ = cloud_data_buff_.front();
+ /*    current_cloud_data_ = cloud_data_buff_.front();
     current_imu_data_ = imu_data_buff_.front();
-/*     current_velocity_data_ = velocity_data_buff_.front();
-    current_gnss_data_ = gnss_data_buff_.front(); */
+    current_velocity_data_ = velocity_data_buff_.front();
+    current_gnss_data_ = gnss_data_buff_.front();
 
     double diff_imu_time = current_cloud_data_.time - current_imu_data_.time;
-  /*   double diff_velocity_time = current_cloud_data_.time - current_velocity_data_.time;
-    double diff_gnss_time = current_cloud_data_.time - current_gnss_data_.time; */
-    if (diff_imu_time < -0.05/*  || diff_velocity_time < -0.05 || diff_gnss_time < -0.05 */) {
+    double diff_velocity_time = current_cloud_data_.time - current_velocity_data_.time;
+    double diff_gnss_time = current_cloud_data_.time - current_gnss_data_.time;
+    if (diff_imu_time < -0.05 || diff_velocity_time < -0.05 || diff_gnss_time < -0.05) {
         cloud_data_buff_.pop_front();
         return false;
     }
@@ -147,7 +148,7 @@ bool DataPretreatFlow::ValidData() {
         return false;
     }
 
-/*     if (diff_velocity_time > 0.05) {
+    if (diff_velocity_time > 0.05) {
         velocity_data_buff_.pop_front();
         return false;
     }
@@ -156,12 +157,17 @@ bool DataPretreatFlow::ValidData() {
         gnss_data_buff_.pop_front();
         return false; 
     }
-*/
+
     cloud_data_buff_.pop_front();
     imu_data_buff_.pop_front();
- /*    velocity_data_buff_.pop_front();
-    gnss_data_buff_.pop_front(); */
+    velocity_data_buff_.pop_front();
+    gnss_data_buff_.pop_front();  */
 
+    current_cloud_data_ = cloud_data_buff_.back();
+    current_imu_data_ = imu_data_buff_.back();
+
+    cloud_data_buff_.clear();
+    imu_data_buff_.clear();
     return true;
 }
 
@@ -188,6 +194,8 @@ bool DataPretreatFlow::TransformData() {
 }
 
 bool DataPretreatFlow::PublishData() {
+    std::vector<int> indices;
+    pcl::removeNaNFromPointCloud(*current_cloud_data_.cloud_ptr, *current_cloud_data_.cloud_ptr, indices);
     cloud_pub_ptr_->Publish(current_cloud_data_.cloud_ptr, current_cloud_data_.time);
     //gnss_pub_ptr_->Publish(gnss_pose_, current_gnss_data_.time);
 
